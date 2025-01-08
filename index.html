@@ -1,0 +1,248 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="robotai-gm.css">
+</head>
+<body>
+<div class="screen">
+  <div class="start-message" id="startMessage">Press any button to start</div>
+  <div id="sensorOutput" class="sensor-output" style="display: none;">VISUAL SENSORS OUTPUT:
+&gt; Detecting office environment
+&gt; Human operator detected at desk - male, approx. 30 years
+&gt; Room temperature: 22&#xb0;C
+&gt; Light level: Medium
+&gt; Dust particles detected on surfaces</div>
+
+<div class="text" id="output"></div>
+<span class="cursor"></span>
+
+</div>
+
+<script>const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+function playTypeSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  oscillator.type = 'square';
+  oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+  gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.05);
+}
+function playLoadingSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(440 + Math.random() * 100, audioContext.currentTime);
+  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.1);
+}
+function playNarrativeTypeSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  oscillator.type = 'triangle';
+  oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+  gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.03);
+}
+const initialText = `SYSTEM INITIALIZED...
+LOADING PROTOCOLS...
+> MEMORY CHECK..................OK
+> DISK DRIVE...................OK
+> NETWORK INTERFACE............OK
+
+CLEANBOT v1.0:\\> _
+
+RoboAssist Command Interface v2.5
+ Advanced Robotics Corp 2025
+
+All diagnostics complete.
+Launch robot? [Y/N]_`;
+async function simulateLoading() {
+  const loadingSteps = 20;
+  let progress = '';
+  for (let i = 0; i <= loadingSteps; i++) {
+    const percentage = Math.floor(i / loadingSteps * 100);
+    progress = '[' + '='.repeat(i) + ' '.repeat(loadingSteps - i) + '] ' + percentage + '%';
+    output.textContent = output.textContent.replace(/\[.*\].*%|$/, '') + progress;
+    playLoadingSound();
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  document.getElementById('sensorOutput').style.display = 'block';
+  output.textContent = '';
+  const narrativeText = `[Behind his colossal mahogany desk, Mr. Peterson's thick glasses magnified his disapproving stare as he scrutinized the cleaning robot. A stack of meticulously organized spreadsheets sat to his right, each page aligned with military precision. The accountant's thin lips pursed into a line as sharp as the crease in his charcoal gray suit. His fingers, calloused from decades of calculator use, drummed an impatient rhythm on the desktop.
+'This room,' he declared with the same rigid authority he applied to balancing books, 'must be spotless. Not a single dust particle out of place.' The fluorescent lights above reflected off his glasses, momentarily obscuring his eyes but not diminishing the intensity of his demanding presence in the sterile office space.]\n\n`;
+  let isTypingSoundPlaying = false;
+  const narrativeTypingInterval = setInterval(() => {
+    if (!isTypingSoundPlaying) {
+      isTypingSoundPlaying = true;
+      playNarrativeTypeSound();
+      setTimeout(() => {
+        isTypingSoundPlaying = false;
+      }, 50);
+    }
+  }, 100);
+  for (let char of narrativeText) {
+    appendWithHighlight(char);
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+  clearInterval(narrativeTypingInterval);
+  return 'Available commands: clean, joke, talk\n\nEnter command:';
+}
+const commandsText = `\nInitializing robot systems
+[                    ] 0%`;
+let index = 0;
+const output = document.getElementById('output');
+const startMessage = document.getElementById('startMessage');
+let userInput = '';
+let hasStarted = false;
+let waitingForLaunch = true;
+
+function typeText() {
+  if (index < initialText.length) {
+    const span = document.createElement('span');
+    span.textContent = initialText.charAt(index);
+    span.classList.add('highlight-letter');
+    output.appendChild(span);
+
+    if (initialText.charAt(index) !== ' ' && initialText.charAt(index) !== '\n') {
+      playTypeSound();
+    }
+    index++;
+    const delay = Math.random() * 30 + 30;
+    setTimeout(typeText, delay);
+  }
+}
+
+async function processCommand(cmd) {
+  if (waitingForLaunch) {
+    const command = cmd.trim().toLowerCase();
+    if (command === 'y') {
+      waitingForLaunch = false;
+      output.textContent += commandsText;
+      const remainingText = await simulateLoading();
+      return remainingText;
+    } else if (command === 'n') {
+      return '\nShutting down...';
+    }
+    return '\nInvalid input. Please enter Y or N:';
+  }
+  const command = cmd.trim().toLowerCase();
+  let response = '\n';
+  if (!['clean', 'joke', 'talk'].includes(command)) {
+    document.querySelector('.screen').classList.add('glitch');
+    playGlitchSound();
+    setTimeout(() => {
+      document.querySelector('.screen').classList.remove('glitch');
+    }, 200);
+  }
+  switch (command) {
+    case 'clean':
+      response += 'Cleaning protocols initiated...\nCleaning complete!\n';
+      break;
+    case 'joke':
+      response += 'Why did the robot go back to school?\nBecause it needed to improve its CIRCUITS!\n';
+      break;
+    case 'talk':
+      response += 'Hello! I am your friendly robot assistant. How can I help you today?\n';
+      break;
+    default:
+      response += 'Invalid command. Available commands: clean, joke, talk\n';
+  }
+  return response + '\nAvailable commands: clean, joke, talk\nEnter command:';
+}
+function scrollToBottom() {
+  const screen = document.querySelector('.screen');
+  screen.scrollTop = screen.scrollHeight;
+}
+window.onload = () => {
+  document.addEventListener('click', startProgram);
+  document.addEventListener('keydown', startProgram);
+};
+function startProgram(e) {
+  if (!hasStarted) {
+    hasStarted = true;
+    startMessage.style.display = 'none';
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    if (index === 0) {
+      typeText();
+    }
+    document.removeEventListener('click', startProgram);
+    document.removeEventListener('keydown', startProgram);
+  }
+}
+document.addEventListener('keydown', async e => {
+  if (hasStarted && index >= initialText.length) {
+    if (e.key === 'Enter') {
+      const response = await processCommand(userInput);
+      // output.textContent += '\n' + userInput + response;
+      output.textContent += '\n' + response;
+      userInput = '';
+      setTimeout(scrollToBottom, 0);
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      if (userInput.length > 0) {
+        playTypeSound();
+        userInput = userInput.slice(0, -1);
+        output.textContent = output.textContent.slice(0, -1);
+      }
+    }
+  }
+});
+document.addEventListener('keypress', e => {
+  if (hasStarted && index >= initialText.length) {
+    if (e.key !== 'Enter') {
+      if (waitingForLaunch) {
+        if (e.key.toLowerCase() === 'y' || e.key.toLowerCase() === 'n') {
+          playTypeSound();
+          userInput += e.key;
+          output.textContent += e.key;
+          setTimeout(scrollToBottom, 0);
+        }
+      } else {
+        playTypeSound();
+        userInput += e.key;
+        output.textContent += e.key;
+        setTimeout(scrollToBottom, 0);
+      }
+    }
+  }
+});
+function playGlitchSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+  oscillator.type = 'sawtooth';
+  oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+  oscillator.frequency.linearRampToValueAtTime(1000, audioContext.currentTime + 0.1);
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+  filter.Q.value = 10;
+  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+  oscillator.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.2);
+}
+function appendWithHighlight(text) {
+  const span = document.createElement('span');
+  span.textContent = text;
+  span.classList.add('highlight-letter');
+  output.appendChild(span);
+}
+</script>
+</body></html>

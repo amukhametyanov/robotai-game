@@ -1,0 +1,178 @@
+body {
+    background-color: #000;
+    margin: 0;
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .screen {
+    background-color: #001100;
+    border: 15px solid #333;
+    border-radius: 15px;
+    box-shadow: 
+      inset 0 0 50px rgba(0, 255, 0, 0.2),
+      0 0 30px rgba(0, 255, 0, 0.1);
+    padding: 30px;
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    max-height: calc(100vh - 40px);
+    scrollbar-width: thin;
+    scrollbar-color: #00ff00 #001100;
+  }
+
+  .screen::before {
+    content: "";
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    animation: scanline 10s linear infinite;
+  }
+
+  /* text CSS styles */
+  .text {
+    color: #00ff00;
+    font-size: 18px;
+    line-height: 1.4;
+    text-shadow: 0 0 5px #00ff00;
+    white-space: pre-wrap;
+    animation: blink 1s infinite;
+    margin-bottom: 20px;
+  }
+  
+
+.highlight-letter {
+  color: #80ff80;
+  text-shadow: 0 0 8px #80ff80;
+  font-weight: bold;
+  animation: fadeOut 0.3s forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    color: #80ff80;
+    text-shadow: 0 0 8px #80ff80;
+    font-weight: bold;
+  }
+  to {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    font-weight: normal;
+  }
+}
+
+  .start-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #00ff00;
+    font-size: 24px;
+    text-shadow: 0 0 5px #00ff00;
+    animation: blink 1s infinite;
+    text-align: center;
+  }
+
+  .sensor-output {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    padding: 15px;
+    font-size: 16px;
+    background-color: rgba(0, 17, 0, 0.8);
+    white-space: pre-wrap;
+    text-shadow: 0 0 5px #00ff00;
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background-color: #00ff00;
+    animation: cursor-blink 1s infinite;
+    vertical-align: bottom;
+    margin-left: 5px;
+  }
+
+  @keyframes cursor-blink {
+    0%, 49% { opacity: 0; }
+    50%, 100% { opacity: 1; }
+  }
+
+  .screen::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .screen::-webkit-scrollbar-track {
+    background: #001100;
+    border-radius: 6px;
+  }
+
+  .screen::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 6px;
+    border: 3px solid #001100;
+  }
+
+  .screen::-webkit-scrollbar-thumb:hover {
+    background: #00cc00;
+  }
+
+  @keyframes glitch {
+    0% { 
+      transform: translate(0);
+      filter: hue-rotate(0deg);
+    }
+    25% { 
+      transform: translate(-2px, 2px);
+      filter: hue-rotate(90deg);
+    }
+    50% { 
+      transform: translate(2px, -2px);
+      filter: hue-rotate(180deg);
+    }
+    75% { 
+      transform: translate(-2px, -2px);
+      filter: hue-rotate(270deg);
+    }
+    100% { 
+      transform: translate(0);
+      filter: hue-rotate(360deg);
+    }
+  }
+
+  .glitch {
+    animation: glitch 0.4s linear;
+  }
