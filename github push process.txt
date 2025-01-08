@@ -1,0 +1,10 @@
+cd path/to/your/project
+git status
+# Review the status output to see changes
+
+git add .
+# Alternatively, add specific files
+# git add index.html style.css script.js
+
+git commit -m "Updated index.html, style.css, and script.js with new features"
+git push
